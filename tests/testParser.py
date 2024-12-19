@@ -15,6 +15,3 @@ class TestParser(unittest.TestCase):
         input_json = '{"key1": "value1", "key2": [1, 2, 3]'  # Отсутствует закрывающая скобка
         with self.assertRaises(ValueError):
             parse_json(input_json)
-
-if __name__ == '__main__':
-    unittest.main()
