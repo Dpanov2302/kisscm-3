@@ -1,0 +1,13 @@
+{
+    data -> {
+        number -> 5.
+        string -> apple.
+        constant_example -> 100.
+        list_example -> [ 3.14 100 2 ].
+        dict_example -> {
+            one -> 1.
+            two -> 2.
+            three -> 3.
+        }.
+    }.
+}

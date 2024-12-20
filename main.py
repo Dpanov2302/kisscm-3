@@ -1,48 +1,45 @@
 import argparse
 import json
-from config_translator.syntax_checker import SyntaxChecker
-from config_translator.transformer import ConfigLanguageTransformer
-
-
-def parse_args():
-    # Создаем парсер командной строки
-    parser = argparse.ArgumentParser(description="Tool for converting JSON to custom configuration format.")
-
-    # Добавляем аргументы для входного и выходного файлов
-    parser.add_argument(
-        'input_file',
-        help='Path to the input JSON file'
-    )
-    parser.add_argument(
-        'output_file',
-        help='Path to the output configuration file'
-    )
-
-    return parser.parse_args()
+import sys
+from translator import ConfigLanguageTranslator
 
 
 def main():
-    # Разбираем аргументы командной строки
-    args = parse_args()
+    parser = argparse.ArgumentParser(description="JSON to configuration language translator")
+    parser.add_argument("input_file", help="Path to the input JSON file")
+    parser.add_argument("output_file", help="Path to the output text file")
+    args = parser.parse_args()
 
-    # Открываем и загружаем входной JSON файл
-    with open(args.input_file, 'r') as infile:
-        input_data = json.load(infile)
+    try:
+        with open(args.input_file, "r") as f:
+            # Считываем строки и удаляем комментарии
+            lines = f.readlines()
+            lines = ConfigLanguageTranslator().remove_comments(lines)
+            input_data = json.loads("".join(lines))
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    # Создаем экземпляр класса SyntaxChecker
-    checker = SyntaxChecker()
-    transformer = ConfigLanguageTransformer()
+    translator = ConfigLanguageTranslator()
+    try:
+        # Извлекаем и обрабатываем константы
+        if "constants" in input_data:
+            translator.parse_constants(input_data["constants"])
+            del input_data["constants"]
 
-    # Проверяем синтаксис данных
-    checker.check_syntax(input_data)
+        # Переводим JSON в конфигурационный язык
+        translated = translator.translate(input_data)
+    except (SyntaxError, NameError, ValueError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    # Трансформируем данные в нужный формат
-    transformed_data = transformer.transform(input_data)
-
-    # Записываем результат в выходной файл
-    with open(args.output_file, 'w') as outfile:
-        outfile.write(transformed_data)
-
+    try:
+        with open(args.output_file, "w") as f:
+            f.write(translated)
+        print(f"Translation successful. Output written to {args.output_file}")
+    except IOError as e:
+        print(f"Error writing to file: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

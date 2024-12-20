@@ -1,0 +1,14 @@
+{
+  "constants": {
+    "MAX_VALUE": 100,
+    "PI": 3.14
+  },
+  "data": {
+    "number": 5,
+    "string": "apple",
+    "!key_comment": "it does not need to be displayed",
+    "constant_example": "?(MAX_VALUE)",
+    "list_example": [ "?(PI)", "?(MAX_VALUE)", "!Inline comment", 2 ],
+    "dict_example": {"one": 1, "two": 2, "three": 3}
+  }
+}
