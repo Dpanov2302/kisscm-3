@@ -134,42 +134,176 @@ Ran 7 tests in 0.008s
 OK
 ```
 
-## Пример конфигурации
+## Примеры конфигурации из разных предметных областей
 
-Вот пример входного JSON-файла и соответствующего выходного текста:
+Вот примеры входных JSON-файлов и соответствующих им выходных текстов.
 
-### Входной файл:
+### 1. Система управления умным домом
+
+#### Входной файл:
 
 ```json
 {
   "constants": {
-    "MAX_VALUE": 100,
-    "PI": 3.14
+    "DEFAULT_TEMP": 22,
+    "MAX_LIGHT_LEVEL": 100
   },
-  "data": {
-    "number": 5,
-    "string": "apple",
-    "!key_comment": "it does not need to be displayed",
-    "constant_example": "?(MAX_VALUE)",
-    "list_example": [ "?(PI)", "?(MAX_VALUE)", "!Inline comment", 2 ],
-    "dict_example": {"one": 1, "two": 2, "three": 3}
+  "devices": {
+    "thermostat": {
+      "mode": "cool",
+      "temperature": "?(DEFAULT_TEMP)"
+    },
+    "lights": {
+      "living_room": {
+        "level": 75,
+        "status": "on"
+      },
+      "bedroom": {
+        "level": "?(MAX_LIGHT_LEVEL)",
+        "status": "off"
+      }
+    }
   }
 }
 ```
 
-### Выходной файл:
+#### Выходной файл:
 
 ```text
 {
-    data -> {
-        number -> 5.
-        string -> apple.
-        constant_example -> 100.
-        list_example -> [ 3.14 100 2 ].
-        dict_example -> {
-            one -> 1.
-            two -> 2.
-            three -> 3.
+    devices -> {
+        thermostat -> {
+            mode -> cool.
+            temperature -> 22.
+        }.
+        lights -> {
+            living_room -> {
+                level -> 75.
+                status -> on.
+            }.
+            bedroom -> {
+                level -> 100.
+                status -> off.
+            }.
+        }.
+    }.
+}
+```
+
+### 2. Конфигурация серверной инфраструктуры
+
+#### Входной файл:
+
+```json
+{
+  "constants": {
+    "DEFAULT_PORT": 8080,
+    "MAX_CONNECTIONS": 100
+  },
+  "servers": {
+    "web_server": {
+      "ip": "192.168.0.1",
+      "port": "?(DEFAULT_PORT)",
+      "max_connections": "?(MAX_CONNECTIONS)"
+    },
+    "db_server": {
+      "ip": "192.168.0.2",
+      "port": 3306,
+      "backup": {
+        "enabled": true,
+        "schedule": "02:00"
+      }
+    }
+  }
+}
+```
+
+#### Выходной файл:
+
+```text
+{
+    servers -> {
+        web_server -> {
+            ip -> 192.168.0.1.
+            port -> 8080.
+            max_connections -> 100.
+        }.
+        db_server -> {
+            ip -> 192.168.0.2.
+            port -> 3306.
+            backup -> {
+                enabled -> true.
+                schedule -> 02:00.
+            }.
+        }.
+    }.
+}
+```
+
+### 3. Конфигурация системы управления проектами
+
+#### Входной файл:
+
+```json
+{
+  "constants": {
+    "DEFAULT_PRIORITY": "medium"
+  },
+  "projects": {
+    "project_alpha": {
+      "tasks": [
+        {
+          "title": "Setup environment",
+          "priority": "?(DEFAULT_PRIORITY)",
+          "assignee": "Alice"
+        },
+        {
+          "title": "Develop feature X",
+          "priority": "high",
+          "assignee": "Bob"
+        }
+      ]
+    },
+    "project_beta": {
+      "tasks": [
+        {
+          "title": "Create documentation",
+          "priority": "low",
+          "assignee": "Charlie"
+        }
+      ]
+    }
+  }
+}
+```
+
+#### Выходной файл:
+
+```text
+{
+    projects -> {
+        project_alpha -> {
+            tasks -> [ 
+                { 
+                    title -> Setup environment. 
+                    priority -> medium. 
+                    assignee -> Alice. 
+                } 
+                { 
+                    title -> Develop feature X. 
+                    priority -> high. 
+                    assignee -> Bob. 
+                } 
+            ].
+        }.
+        project_beta -> {
+            tasks -> [ 
+                { 
+                    title -> Create documentation. 
+                    priority -> low. 
+                    assignee -> Charlie. 
+                } 
+            ].
         }.
     }.
 }
